@@ -19,7 +19,7 @@ yarn
 yarn test
 ```
 
-## How to benchmarks WebGL over WebGPU
+## How to benchmark WebGL over WebGPU
 
 Example CL: 
 https://github.com/tensorflow/tfjs/pull/1843
