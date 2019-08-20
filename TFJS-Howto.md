@@ -1,7 +1,7 @@
 
 ## How to run TFJS WebGPU on MacBook
 
-1. Install Google Chrome Canarr, test WebGPU
+1. Install Google Chrome Canary, test WebGPU
 After install the dmg file, it usually located(Attention to \ and space):
 ```
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary
