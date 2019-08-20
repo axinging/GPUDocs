@@ -1,4 +1,23 @@
 
+## How to run TFJS WebGPU on MacBook
+
+1. Install Google Chrome Canarr, test WebGPU
+After install the dmg file, it usually located(Attention to \ and space):
+```
+/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary
+```
+Start the Chrome Canary(Find the right icon inside Applications), set chrome://flags/#enable-unsafe-webgpu
+Test page:
+https://austineng.github.io/webgpu-samples/hello_triangle.html
+
+2. Test TFJS-WebGPU
+```
+export CHROME_BIN=/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary
+git clone https://github.com/tensorflow/tfjs.git
+cd tfjs/tfjs-backend-webgpu
+yarn
+yarn test
+```
 
 ## How to benchmarks WebGL over WebGPU
 
@@ -46,8 +65,6 @@ About why rename benchmark_ops_test to benchmark_test: maybe it is a compatibily
 
 ```
 import * as tf from '../index'
-//import {Rank} from '../types'
-//import * as tf from '@tensorflow/tfjs-core';
 import {ALL_ENVS, describeWithFlags} from '../jasmine_util';
 
 describeWithFlags('Ops benchmarks',ALL_ENVS, () => {
@@ -111,7 +128,7 @@ describeWithFlags('Ops benchmarks',ALL_ENVS, () => {
     console.log(`MMMean time: ${fmt(mean)} ms -> ${fmt(mean / reps)} / rep`);
     console.log(`MMMin time: ${fmt(min)} ms -> ${fmt(min / reps)} / rep`);
   }
-/*
+
   it('argMax', async () => {
     const n = 50;
     const doTest = async (axis: number) => {
@@ -159,7 +176,7 @@ describeWithFlags('Ops benchmarks',ALL_ENVS, () => {
 
     await time(() => tf.conv2d(a, b, 1, 'same'));
   });
-*/
+
   it('depthwiseconv2d', async () => {
     const x = tf.randomNormal<tf.Rank.R4>([1, 128, 128, 1]);
     const w = tf.tensor4d(
