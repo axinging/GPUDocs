@@ -21,6 +21,9 @@ yarn test
 
 ## How to benchmarks WebGL over WebGPU
 
+Example CL: 
+https://github.com/tensorflow/tfjs/pull/1843
+
 #### Run benchmark over WebGPU
 
 1. Add below case and rename benchmark_ops_test to benchmark_test
