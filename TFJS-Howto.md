@@ -212,3 +212,31 @@ import {describeWebGPU} from './test_util';
 describeWebGPU('Ops benchmarks', () => {
 ```
 
+Example diff for how to porting WebGL test case to WebGPU case:
+
+```
+//../../tfjs/tfjs-core/src/ops/compare_ops_test.ts
+18,20c18,20
+< import * as tf from '@tensorflow/tfjs-core';
+< import {describeWebGPU} from './test_util';
+< import {test_util} from '@tensorflow/tfjs-core';
+---
+> import * as tf from '../index';
+> import {ALL_ENVS, describeWithFlags} from '../jasmine_util';
+> import {expectArraysClose, expectArraysEqual} from '../test_util';
+22,23c22
+<
+< describeWebGPU('equal', () => {
+---
+> describeWithFlags('equal', ALL_ENVS, () => {
+28c27
+<     test_util.expectArraysClose(await tf.equal(a, b).data(), [0, 0, 1]);
+---
+>     expectArraysClose(await tf.equal(a, b).data(), [0, 0, 1]);
+32c31
+<     test_util.expectArraysClose(await tf.equal(a, b).data(), [1, 1, 1]);
+---
+>     expectArraysClose(await tf.equal(a, b).data(), [1, 1, 1]);
+36c35
+```
+
