@@ -194,3 +194,21 @@ describeWithFlags('Ops benchmarks',ALL_ENVS, () => {
 
 2. yarn& yarn test --grep=benchmark
 
+## TFJS WebGL/CPU test case vs WebGPU test case
+
+WebGL test case:
+```
+import * as tf from '../index'
+import {ALL_ENVS, describeWithFlags} from '../jasmine_util';
+
+describeWithFlags('Ops benchmarks',ALL_ENVS, () => {
+```
+
+WebGPU test case:
+```
+import * as tf from '@tensorflow/tfjs-core';
+import {describeWebGPU} from './test_util';
+
+describeWebGPU('Ops benchmarks', () => {
+```
+
