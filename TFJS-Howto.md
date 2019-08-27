@@ -1,4 +1,15 @@
 
+## WebGPU overview
+
+WebGPU status and samples:
+https://github.com/gpuweb/gpuweb/wiki/Implementation-Status
+
+WebGPU spec:
+https://gpuweb.github.io/gpuweb/
+
+TFJS WebGPU implementation:
+https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu
+
 ## How to run TFJS WebGPU on MacBook
 
 1. Install latest Google Chrome Canary, test WebGPU
