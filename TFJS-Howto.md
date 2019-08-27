@@ -19,14 +19,14 @@ yarn
 yarn test
 ```
 
-Also you can try this [Resnet](https://nostalgic-ramanujan-cdbc05.netlify.com) model.
+Also you can try this [Posnet](https://nostalgic-ramanujan-cdbc05.netlify.com) model.
 
 ## How to benchmark WebGL over WebGPU
 
 Example CL: 
 https://github.com/tensorflow/tfjs/pull/1843
 
-#### Run benchmark over WebGPU
+#### Run benchmark on WebGPU
 
 1. Add below case and rename benchmark_ops_test to benchmark_test
 ```
@@ -61,11 +61,11 @@ Also you may need:
  ];
 ```
 
-About why rename benchmark_ops_test to benchmark_test: maybe it is a compatibily problem in karma.
+About why rename benchmark_ops_test to benchmark_test: karma config excludes benchmark_ops_test by default.
 
-2. cd fjs-backend-webgpu & yarn & yarn test --grep=benchmark
+2. cd fjs-backend-webgpu & yarn & yarn test
 
-#### Run benchmark over WebGL(WebGL 1,WebGL 2 and CPU)
+#### Run benchmark on WebGL(WebGL 1,WebGL 2 and CPU)
 1. Add test case under tfjs-core/src/ops/benchmark_ops_test.ts
 
 ```
