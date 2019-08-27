@@ -7,6 +7,7 @@ After install the dmg file, it usually located(Attention to \ and space):
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary
 ```
 Start the Chrome Canary(Find the right icon inside Applications), set chrome://flags/#enable-unsafe-webgpu
+
 Test page:
 https://austineng.github.io/webgpu-samples/hello_triangle.html
 
