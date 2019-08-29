@@ -1,5 +1,4 @@
 ## CPU setup
-
 #### makeBindGroupLayout from shader_preprocessor.InputInfo/output/uniforms info
 
 this.compileAndRun(program, [a, b], output)
@@ -72,6 +71,11 @@ uniform Uniforms
 ```
 
 ## Input/Output layout/bind group generator
+
+
+![bindgroup](bindgroup.PNG)
+
+
 
 输出是固定的binding 0：
 ```
