@@ -18,6 +18,32 @@ this.compileAndRun(program, [a, b], output)
 
 ```
 
+uniforms一般分为两种。programUniforms+dimUniforms。
+dimUniforms是根据输入输出tensor的shape信息生成的。
+programUniforms则提供了更多参数读取的信息：
+
+dimUniforms的例子：
+```
+    let dimUniforms: number[] = [];
+    const bufferShapes = inputs.concat(output).map(d => d.shape);
+    bufferShapes.forEach((d, i) => {
+      ...
+      for (let p = 0; p < padding; ++p) {
+        dimUniforms.push(0);
+      }
+      dimUniforms.push(...d);
+      currentOffset += d.length + padding;
+    });
+```
+
+programUniforms的例子：
+```
+    const dimensions = [
+      convInfo.filterHeight, convInfo.filterWidth, ...pad,
+      convInfo.strideHeight, convInfo.strideWidth
+    ];
+```
+
 ```
 const makeBindGroupLayout =
     (device: GPUDevice, inputs: shader_preprocessor.InputInfo[], output: Tensor,
