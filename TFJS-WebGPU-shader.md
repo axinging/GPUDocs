@@ -70,7 +70,7 @@ buffer ssbB
 uniform Uniforms
 ```
 
-## Input/Output layout/bind group generator
+## Input/output layout/bind group generator
 
 
 ![bindgroup](bindgroup.PNG)
@@ -88,6 +88,7 @@ uniform Uniforms
 ```
 
 输入则分为多个情况：原始数据存储在GPUBuffer, Uniforms也存储在GPUBuffer。
+
 下面这个是针对原始数据的：
 ```
   let uniformDeclaration = '';
