@@ -30,10 +30,18 @@ cd tfjs/tfjs-backend-webgpu
 yarn
 yarn test
 ```
+3. Posnet
+
+Posnet also works, but need small fix: https://github.com/tensorflow/tfjs-models/tree/master/posenet
+
+tfjs-models\posenet>cp -r ..\..\tfjs\tfjs-backend-webgpu\node_modules\@tensorflow\tfjs-core .\node_modules\@tensorflow\
 
 Also you can try this [Posnet](https://nostalgic-ramanujan-cdbc05.netlify.com) model.
 
 ## How to run TFJS WebGPU on Windows
+
+In case you came across any time out issues, try as below:
+
 In file tfjs-backend-webgpu/src/benchmark_ops_test.ts:
 ```
  describeWebGPU('Ops benchmarks', () => {
@@ -67,6 +75,8 @@ https://github.com/tensorflow/tfjs/pull/1843
 #### Run benchmark on WebGPU
 
 1. Add below case and rename benchmark_ops_test to benchmark_test
+(rename is not necessary, ypu can also remove the exclude in package.json: --excludeTest='src/benchmark_ops_test.ts')
+
 ```
 --- a/tfjs-backend-webgpu/src/benchmark_ops_test.ts
 +++ b/tfjs-backend-webgpu/src/benchmark_ops_test.ts
