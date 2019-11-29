@@ -40,6 +40,8 @@ In file tfjs-backend-webgpu/src/benchmark_ops_test.ts:
        jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000000;
 
 ```
+
+```
 captureTimeout: 21000000,
 
 browserDisconnectTolerance: 3,
@@ -49,12 +51,14 @@ browserDisconnectTimeout : 21000000,
 browserNoActivityTimeout : 21000000,
 
 ```
+
 ```
 chrome_webgpu: {
   base: 'Chrome',
   flags: ['--sand-box', '--enable-unsafe-webgpu'],
 } 
 ```
+
 ## How to benchmark WebGL over WebGPU
 
 Example CL: 
