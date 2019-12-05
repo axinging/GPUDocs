@@ -290,3 +290,12 @@ Example diff for how to porting WebGL test case to WebGPU case:
 36c35
 ```
 
+## How to contribute
+1, Edit code, format with clang-format
+2, run test: yarn test
+3, checkout lint: yarn lint
+
+In case local pass, but failed on Cloud,  joining the mailing list:  
+https://groups.google.com/a/tensorflow.org/forum/?utm_medium=email&utm_source=footer#!forum/tfjs
+
+https://github.com/tensorflow/tfjs/blob/master/CONTRIBUTING.md
