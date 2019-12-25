@@ -290,6 +290,21 @@ Example diff for how to porting WebGL test case to WebGPU case:
 36c35
 ```
 
+## Handtracking
+How to build:
+```
+tfjs-core wp$ yarn
+tfjs-core wp$ yarn build-npm
+tfjs-core wp$ yarn link
+
+handtrack wp$ yarn link "@tensorflow/tfjs-core"
+
+handtrack wp$ yarn link
+
+demo wp$ yarn link "@tensorflow-models/handtrack"
+demo wp$ yarn link "@tensorflow/tfjs-core"
+```
+
 ## How to contribute
 1, Edit code, format with clang-format
 2, run test: yarn test
