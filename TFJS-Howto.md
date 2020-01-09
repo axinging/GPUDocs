@@ -305,6 +305,25 @@ demo wp$ yarn link "@tensorflow-models/handtrack"
 demo wp$ yarn link "@tensorflow/tfjs-core"
 ```
 
+How to build it with local tfjs-core:
+```
+tfjs\tfjs-core>yarn
+tfjs\tfjs-core>yarn build-npm
+tfjs\tfjs-core>yarn link
+
+tfjs\tfjs-backend-webgpu>yarn
+tfjs\tfjs-backend-webgpu>yarn build-npm
+tfjs\tfjs-backend-webgpu>yarn link
+
+
+tfjs-models\handtrack>yarn link "@tensorflow/tfjs-backend-webgpu"
+tfjs-models\handtrack>yarn link "@tensorflow/tfjs-core"
+tfjs-models\handtrack>yarn & yarn build &yarn link
+
+tfjs-models\handtrack\demo>yarn link "@tensorflow-models/handtrack"
+tfjs-models\handtrack\demo>yarn & yarn watch
+```
+
 ## How to contribute
 1, Edit code, format with clang-format
 2, run test: yarn test
