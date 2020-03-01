@@ -324,6 +324,42 @@ tfjs-models\handtrack\demo>yarn link "@tensorflow-models/handtrack"
 tfjs-models\handtrack\demo>yarn & yarn watch
 ```
 
+## JS not update after yarn build
+
+```
+cd /Users/abc/def/webgpu/handtracking/tfjs/tfjs-converter 
+yarn cache clean
+yarn unlink "@tensorflow/tfjs-core"
+yarn unlink "@tensorflow/tfjs-backend-webgpu"
+
+yarn link "@tensorflow/tfjs-core"
+yarn link "@tensorflow/tfjs-backend-webgpu"
+
+yarn & yarn build
+yarn & yarn build-npm
+yarn unlink
+yarn link
+
+cd /Users/abc/def/webgpu/handtracking/tfjs-models/handtrack
+yarn cache clean
+yarn link "@tensorflow/tfjs-core"
+yarn link "@tensorflow/tfjs-backend-webgpu"
+yarn link "@tensorflow/tfjs-converter"
+
+cd /Users/abc/def/webgpu/handtracking/tfjs-models/handtrack/demo
+yarn unlink "@tensorflow/tfjs-core"
+yarn unlink "@tensorflow/tfjs-backend-webgpu"
+yarn unlink "@tensorflow/tfjs-converter"
+yarn unlink "@tensorflow-models/handtrack"
+
+yarn cache clean
+yarn link "@tensorflow/tfjs-core"
+yarn link "@tensorflow/tfjs-backend-webgpu"
+yarn link "@tensorflow/tfjs-converter"
+yarn link "@tensorflow-models/handtrack"
+```
+
+
 ## How to contribute
 1, Edit code, format with clang-format
 2, run test: yarn test
