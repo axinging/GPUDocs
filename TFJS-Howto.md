@@ -48,14 +48,11 @@ In file tfjs-backend-webgpu/src/benchmark_ops_test.ts:
        jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000000;
 
 ```
-
+Also in karma.conf.js:
 ```
 captureTimeout: 21000000,
-
 browserDisconnectTolerance: 3,
-
 browserDisconnectTimeout : 21000000,
-
 browserNoActivityTimeout : 21000000,
 
 ```
