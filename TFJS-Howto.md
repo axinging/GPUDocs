@@ -243,15 +243,27 @@ describeWithFlags('Ops benchmarks',ALL_ENVS, () => {
 
 ## TFJS WebGL/CPU test case vs WebGPU test case
 
-WebGL test case:
+WebGL test case(https://github.com/axinging/tfjs/tree/master/tfjs-backend-webgl/src):
 ```
-import * as tf from '../index'
-import {ALL_ENVS, describeWithFlags} from '../jasmine_util';
+import * as tf from '@tensorflow/tfjs-core';
+import {test_util} from '@tensorflow/tfjs-core';
+import {ALL_ENVS, describeWithFlags} from '@tensorflow/tfjs-core/dist/jasmine_util';
 
-describeWithFlags('Ops benchmarks',ALL_ENVS, () => {
+const {expectArraysClose} = test_util;
+
+describeWithFlags('addbroadcastadd', ALL_ENVS, () => {
+  it('addbroadcastadd2da3 2D+2D broadcast each with 1 dim', async () => {
+    const a = tf.tensor2d([1, 2, 5, 1, 2, 5], [2, 3]);
+    const b = tf.tensor2d([7, 3], [2, 1]);
+    const res = tf.add(a, b);
+    console.log(await res.data());
+    expect(res.shape).toEqual([2, 3]);
+    expectArraysClose(await res.data(), [8, 9, 12, 4, 5, 8]);
+  });
+});
 ```
 
-WebGPU test case:
+WebGPU test case(under https://github.com/axinging/tfjs/tree/master/tfjs-backend-webgpu/src):
 ```
 import * as tf from '@tensorflow/tfjs-core';
 import {describeWebGPU} from './test_util';
