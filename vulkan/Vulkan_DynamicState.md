@@ -1,7 +1,9 @@
 ## Vulkan的Pipeline
 
 我们给别人介绍GPU的时候，第一个要浓墨重彩介绍的，就是GPU的Pipeline：流水线。
+
 OpenGL红宝书里面将Pipeline翻译成管线，一直不理解。但是现在我理解了，确实翻译成流水线更好。你看渲染流水线上的一个个模块，这个完成三角形的组装，那个完成三角形的渲染，还有做透视除法，而且是按着顺序，这个模块做完了交给下一个，和手机生产车间的流水线是类似的。所以确实就是流水线。
+
 但是VkPipeline不是流水线，流水线是硬件实现的。它也不是GPU流水线的软件抽象。它只是描述了GPU流水线的某些需要用户设置的状态。以流水线的原语组装来说，VkPipeline并不负责组装，但是它可以设置一些组装的模式，譬如顶点是组装成点、线、还是三角形。和D3D里面的Pipeline State Object类似。所以VkPipeline其实是一个不太准确的名字。
 
 VkPipeline，加上另外两个集合对象VkDescriptorSet，VkConmandBuffer，描述了GPU渲染相关的主要数据和状态:
@@ -34,6 +36,7 @@ VkPipeline，加上另外两个集合对象VkDescriptorSet，VkConmandBuffer，�
 
 
 ## 问题：调整Pipeline代价较大
+
 前面提到，对于需要调整Pipeline的场景，由于Pipeline数据结构比较庞大，即使调整Pipeline的某一个参数，也需要重建整个pipeline，因此调整起来代价较大。
 
 针对这个情况，有两种处理方法。
@@ -53,6 +56,7 @@ VkPipeline，加上另外两个集合对象VkDescriptorSet，VkConmandBuffer，�
 
 
 ## 解决办法二： Dynamic State
+
 方法二的思路很简单，既然调整整个Pipeline的代价很大。那么，就增加一些API，可以局部调整Pipeline。由于这些Pipeline在提交GPU命令的时候才确定，所以这些API其实是以GPU命令的形式存在的：
 
 ```
@@ -123,7 +127,10 @@ shaderStages[1] = loadShader(getShadersPath() + "offscreen/phong.frag.spv", K_SH
 ```
 
 所以我理解其实需要将更多的流水线状态包含到VK_EXT_EXTENDED_DYNAMIC_STATE里面来，否则应用场景太有限了。
+
 镜子效果代码：https://github.com/SaschaWillems/Vulkan/blob/master/examples/offscreen/offscreen.cpp
+
+## 参考文献
 
 [1] https://ourmachinery.com/post/vulkan-pipelines-and-render-states/
 [2] https://xdc2020.x.org/event/9/contributions/627/attachments/717/1320/How-the-Vulkan-VK_EXT_extended_dynamic_state-extension-came-to-be-final.pdf
