@@ -1,4 +1,4 @@
-## Vulkan的Pipeline
+## Vulkan的VkPipeline
 
 我们给别人介绍GPU的时候，第一个要浓墨重彩介绍的，就是GPU的Pipeline：流水线。
 
