@@ -71,7 +71,16 @@ void vkCmdTraceRaysKHR(
 *Vulkan*
 
 
+## Term
+Procedural geometry is geometry modelled in code. Instead of building 3D meshes by hand using art software such as Maya, 3DS Max or Blender, the mesh is built using programmed instructions.
+https://www.gamasutra.com/blogs/JayelindaSuridge/20130903/199457/Modelling_by_numbers_Part_One_A.php#:~:text=Procedural%20geometry%20is%20geometry%20modelled,is%20built%20using%20programmed%20instructions.&text=Variation%3A%20Meshes%20can%20be%20built,you%20can%20avoid%20repeating%20geometry.
 
+## Sample
+
+https://github.com/KhronosGroup/Vulkan-Samples/tree/master/samples#
+
+Quesntion:
+Why output to a storage image, not a swapchain ?
 
 ## Reference
 
