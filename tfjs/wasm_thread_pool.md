@@ -2,7 +2,7 @@
 
 在TFJS wasm里面，有两个地方会涉及到线程池大小：
 1. 在TFJS编译的时候，会通过PTHREAD_POOL_SIZE来指定线程池的大小, 并创建相应大小的线程池。
-2. 与此同时，在wasm/backend.cc（https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L65） 里面，pthreadpool_create也会创建一个线程池，这个线程池的大小可以通过一个thread_count的参数就指定。
+2. 与此同时，在wasm/backend.cc（https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L65 ） 里面，pthreadpool_create也会创建一个线程池，这个线程池的大小可以通过一个thread_count的参数就指定。
 
 
 两个线程池之间的关系是：
@@ -52,7 +52,7 @@ function pthread_create(threadParams) {
 
 ```
 
-### pthreadpool_create是从real Thread Pool里面取得多个线程
+### pthreadpool_create是从real Thread Pool里面取得多个线程，即fake Thread Pool
 pthreadpool来自https://github.com/Maratyszcza/pthreadpool 。奇怪的是，在TFJS项目编译后，我并没有找到对应的js代码。不过，这不妨碍我们的分析,具体代码在：
 https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 。pthreadpool_create调用的其实是pthread_create。而前面分析已经告诉我们，pthread_create是用来从real Thread Pool里面取得一个Web Worker（线程）。
 ```
@@ -70,4 +70,18 @@ struct pthreadpool* pthreadpool_create(size_t threads_count) {
 
 由此可见，pthreadpool_create创建的线程池，其线程来自PThread创建好的WebWorker。而WebWorker的最大数目是PTHREAD_POOL_SIZE决定的。
 因此pthreadpool_create的参数threads_count应该不大于PTHREAD_POOL_SIZE。
+
+### 能否通过pthreadpool_create来设置fake Thread Pool的大小？
+https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 给出的函数接口是：
+```
+struct pthreadpool* pthreadpool_create(size_t threads_count);
+```
+所以通过调整threads_count，其实是可以实现TFJS真实使用的线程数目的控制的（不超过real Thread Pool）。
+
+backend.cc(TFJS)通过pthreadpool_create创建了一个全局的fake Thread Pool（tfjs::backend::threadpool）。XNN则将所有的计算任务在这个fake Thread Pool之间分配。
+```
+pthreadpool *threadpool = pthreadpool_create(
+    std::min(std::max(num_cores, min_num_threads), max_num_threads));
+```
+
 
