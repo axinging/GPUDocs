@@ -6,8 +6,8 @@
 
 
 两个线程池之间的关系是：
-1. 编译选项PTHREAD_POOL_SIZE决定的是真正的Thread POOL，称作real Thread Pool，其实就是PTHREAD_POOL_SIZE个Web Worker。具体代码在https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js 。
-2. pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集。
+1. 编译选项PTHREAD_POOL_SIZE决定的是真正的Thread Pool，称作real Thread Pool，其实就是PTHREAD_POOL_SIZE个Web Worker。具体代码在https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js 。
+2. pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集,称作fake Thread Pool。
 
 所以要注意：在WASM平台，pthreadpool_create并不是创建线程池，而是从已经创建好的线程池里面取出若干线程而已。
 
