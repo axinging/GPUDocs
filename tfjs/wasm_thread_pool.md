@@ -6,8 +6,8 @@
 
 
 两个线程池之间的关系是：
-编译选项PTHREAD_POOL_SIZE决定的是真正的Thread POOL，称作real Thread Pool，其实就是PTHREAD_POOL_SIZE个Web Worker。具体代码在https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js 。
-pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集。
+1. 编译选项PTHREAD_POOL_SIZE决定的是真正的Thread POOL，称作real Thread Pool，其实就是PTHREAD_POOL_SIZE个Web Worker。具体代码在https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js 。
+2. pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集。
 
 所以要注意：在WASM平台，pthreadpool_create并不是创建线程池，而是从已经创建好的线程池里面取出若干线程而已。
 
@@ -30,7 +30,7 @@ library_pthread.js会创建PThread对象。这个对象根据PTHREAD_POOL_SIZE�
       }
 #endif
 ```
-只要WASM enable了多线程，那么默认就会创建PTHREAD_POOL_SIZE个线程。
+只要WASM enable了多线程，那么默认就会创建PTHREAD_POOL_SIZE个线程。这是WASM线程的总开关，native通过pthread_create创建的线程数目，不能超过这个数。
 
 ### pthread_create 是从real Thread Pool里面取得一个线程
 参考例子https://developers.google.com/web/updates/2018/10/wasm-threads, 编译后，pthread_create(调用spawnThread)其实是从PThread.pthreads里面取出一个线程来实现的。
@@ -54,7 +54,7 @@ function pthread_create(threadParams) {
 
 ### pthreadpool_create是从real Thread Pool里面取得多个线程
 pthreadpool来自https://github.com/Maratyszcza/pthreadpool 。奇怪的是，在TFJS项目编译后，我并没有找到对应的js代码。不过，这不妨碍我们的分析,具体代码在：
-https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 。pthreadpool_create调用的其实是pthread_create用来创建Web Worker（线程）。
+https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 。pthreadpool_create调用的其实是pthread_create。而前面分析已经告诉我们，pthread_create是用来从real Thread Pool里面取得一个Web Worker（线程）。
 ```
 struct pthreadpool* pthreadpool_create(size_t threads_count) {
         ...
