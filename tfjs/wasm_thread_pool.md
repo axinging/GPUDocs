@@ -1,11 +1,23 @@
 本文通过WASM的编译选项PTHREAD_POOL_SIZE和pthreadpool_create来理解WASM的线程池的概念。
 
-在TFJS编译的时候，会通过PTHREAD_POOL_SIZE来指定线程池的大小。而与此同时，在wasm/backend.cc里面，pthreadpool_create也会创建一个线程池，这个线程池的大小是可以通过一个thread_count的参数就指定的。
+在TFJS wasm里面，有两个地方会涉及到线程池大小：
+1. 在TFJS编译的时候，会通过PTHREAD_POOL_SIZE来指定线程池的大小。
+2. 与此同时，在wasm/backend.cc（https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L65） 里面，pthreadpool_create也会创建一个线程池，这个线程池的大小是可以通过一个thread_count的参数就指定的。
 
-### Web Worker线程的创建
+
+两个线程池之间的关系是：
+编译选项PTHREAD_POOL_SIZE决定的是真正的Thread POOL，称作real Thread Pool，其实就是PTHREAD_POOL_SIZE个Web Worker。具体代码在https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js 。
+pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集。
+
+两个线程池的大小关系是：
+既然pthreadpool_create创建的线程池是从real Thread Pool里面取得的，所以其参数thread_count <= PTHREAD_POOL_SIZE.
+
+下面是代码分析。
+### real Thread Pool的创建（创建PTHREAD_POOL_SIZE个Web Worker）
+
 编译选项PTHREAD_POOL_SIZE决定了创建了几个Worker （linkops： https://github.com/tensorflow/tfjs/pull/4957/files#diff-7b82359d52b7dc5160e130024cc2759216a1a0fc63769dad1c5d076a362bf6e1R62）
 
-library_pthread.js会创建PThread（对象？）。这个对象，会根据PTHREAD_POOL_SIZE的大小，创建一个PThread.unusedWorkers数组，成员是Web Worker。
+library_pthread.js会创建PThread。这个对象，会根据PTHREAD_POOL_SIZE的大小，创建一个PThread.unusedWorkers数组，成员是Web Worker。
 
 ```
 #if PTHREAD_POOL_SIZE
