@@ -52,7 +52,7 @@ function pthread_create(threadParams) {
 
 ```
 
-### pthreadpool_create是从real Thread Pool里面取得多个线程，即fake Thread Pool
+### pthreadpool_create是从real Thread Pool里面取得多个线程，创建fake Thread Pool
 pthreadpool来自https://github.com/Maratyszcza/pthreadpool 。奇怪的是，在TFJS项目编译后，我并没有找到对应的js代码。不过，这不妨碍我们的分析,具体代码在：
 https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 。pthreadpool_create调用的其实是pthread_create。而前面分析已经告诉我们，pthread_create是用来从real Thread Pool里面取得一个Web Worker（线程）。
 ```
