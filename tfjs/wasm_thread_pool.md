@@ -1,13 +1,15 @@
 本文通过WASM的编译选项PTHREAD_POOL_SIZE和pthreadpool_create来理解WASM的线程池的概念。
 
 在TFJS wasm里面，有两个地方会涉及到线程池大小：
-1. 在TFJS编译的时候，会通过PTHREAD_POOL_SIZE来指定线程池的大小。
-2. 与此同时，在wasm/backend.cc（https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L65） 里面，pthreadpool_create也会创建一个线程池，这个线程池的大小是可以通过一个thread_count的参数就指定的。
+1. 在TFJS编译的时候，会通过PTHREAD_POOL_SIZE来指定线程池的大小, 并创建相应大小的线程池。
+2. 与此同时，在wasm/backend.cc（https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L65） 里面，pthreadpool_create也会创建一个线程池，这个线程池的大小可以通过一个thread_count的参数就指定。
 
 
 两个线程池之间的关系是：
 编译选项PTHREAD_POOL_SIZE决定的是真正的Thread POOL，称作real Thread Pool，其实就是PTHREAD_POOL_SIZE个Web Worker。具体代码在https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js 。
 pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集。
+
+所以要注意：在WASM平台，pthreadpool_create并不是创建线程池，而是从已经创建好的线程池里面取出若干线程而已。
 
 两个线程池的大小关系是：
 既然pthreadpool_create创建的线程池是从real Thread Pool里面取得的，所以其参数thread_count <= PTHREAD_POOL_SIZE.
@@ -15,9 +17,9 @@ pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线
 下面是代码分析。
 ### real Thread Pool的创建（创建PTHREAD_POOL_SIZE个Web Worker）
 
-编译选项PTHREAD_POOL_SIZE决定了创建了几个Worker （linkops： https://github.com/tensorflow/tfjs/pull/4957/files#diff-7b82359d52b7dc5160e130024cc2759216a1a0fc63769dad1c5d076a362bf6e1R62）
+编译选项PTHREAD_POOL_SIZE决定了创建了几个Web Worker （linkops： https://github.com/tensorflow/tfjs/pull/4957/files#diff-7b82359d52b7dc5160e130024cc2759216a1a0fc63769dad1c5d076a362bf6e1R62）
 
-library_pthread.js会创建PThread。这个对象，会根据PTHREAD_POOL_SIZE的大小，创建一个PThread.unusedWorkers数组，成员是Web Worker。
+library_pthread.js会创建PThread对象。这个对象根据PTHREAD_POOL_SIZE的大小，创建一个PThread.unusedWorkers数组，成员是Web Worker。
 
 ```
 #if PTHREAD_POOL_SIZE
@@ -28,8 +30,9 @@ library_pthread.js会创建PThread。这个对象，会根据PTHREAD_POOL_SIZE�
       }
 #endif
 ```
+只要WASM enable了多线程，那么默认就会创建PTHREAD_POOL_SIZE个线程。
 
-### pthread_create
+### pthread_create 是从real Thread Pool里面取得一个线程
 参考例子https://developers.google.com/web/updates/2018/10/wasm-threads, 编译后，pthread_create(调用spawnThread)其实是从PThread.pthreads里面取出一个线程来实现的。
 所以pthread_create其实是从PThread里面取一个现成的Worker：
 
@@ -49,9 +52,9 @@ function pthread_create(threadParams) {
 
 ```
 
-### pthreadpool_create
-pthreadpool来自https://github.com/Maratyszcza/pthreadpool。奇怪的是，在TFJS项目编译后，我并没有找到对应的js代码。不过，这不妨碍我们的分析,具体代码在：
-https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230。pthreadpool_create调用的其实是pthread_create用来创建Web Worker（线程）。
+### pthreadpool_create是从real Thread Pool里面取得多个线程
+pthreadpool来自https://github.com/Maratyszcza/pthreadpool 。奇怪的是，在TFJS项目编译后，我并没有找到对应的js代码。不过，这不妨碍我们的分析,具体代码在：
+https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 。pthreadpool_create调用的其实是pthread_create用来创建Web Worker（线程）。
 ```
 struct pthreadpool* pthreadpool_create(size_t threads_count) {
         ...
@@ -66,5 +69,5 @@ struct pthreadpool* pthreadpool_create(size_t threads_count) {
 所以pthreadpool_create创建的thread pool，其实是通过pthread_create从library_pthread.js的PTHread里面取出若干个Web Worker。
 
 由此可见，pthreadpool_create创建的线程池，其线程来自PThread创建好的WebWorker。而WebWorker的最大数目是PTHREAD_POOL_SIZE决定的。
-因此pthreadpool_create的参数threads_count应该不大于
+因此pthreadpool_create的参数threads_count应该不大于PTHREAD_POOL_SIZE。
 
