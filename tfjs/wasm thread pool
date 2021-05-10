@@ -1,0 +1,58 @@
+本文通过WASM的编译选项PTHREAD_POOL_SIZE和pthreadpool_create来理解WASM的线程池的概念。
+
+在TFJS编译的时候，会通过PTHREAD_POOL_SIZE来指定线程池的大小。而与此同时，在wasm/backend.cc里面，pthreadpool_create也会创建一个线程池，这个线程池的大小是可以通过一个thread_count的参数就指定的。
+
+### Web Worker线程的创建
+编译选项PTHREAD_POOL_SIZE决定了创建了几个Worker （linkops： https://github.com/tensorflow/tfjs/pull/4957/files#diff-7b82359d52b7dc5160e130024cc2759216a1a0fc63769dad1c5d076a362bf6e1R62）
+
+library_pthread.js会创建PThread（对象？）。这个对象，会根据PTHREAD_POOL_SIZE的大小，创建一个PThread.unusedWorkers数组，成员是Web Worker。
+
+```
+#if PTHREAD_POOL_SIZE
+      var pthreadPoolSize = {{{ PTHREAD_POOL_SIZE }}};
+      // Start loading up the Worker pool, if requested.
+      for (var i = 0; i < pthreadPoolSize; ++i) {
+        PThread.allocateUnusedWorker(); //PThread.unusedWorkers.push(new Worker(pthreadMainJs))
+      }
+#endif
+```
+
+### pthread_create
+参考例子https://developers.google.com/web/updates/2018/10/wasm-threads, 编译后，pthread_create(调用spawnThread)其实是从PThread.pthreads里面取出一个线程来实现的。
+所以pthread_create其实是从PThread里面取一个现成的Worker：
+
+```
+function pthread_create(threadParams) {
+  ...
+  var pthread = PThread.pthreads[threadParams.pthread_ptr] = {
+    worker: worker,
+    stackBase: threadParams.stackBase,
+    stackSize: threadParams.stackSize,
+    allocatedOwnStack: threadParams.allocatedOwnStack,
+    threadInfoStruct: threadParams.pthread_ptr
+  };
+  ...
+  return 0
+}
+
+```
+
+### pthreadpool_create
+pthreadpool来自https://github.com/Maratyszcza/pthreadpool。奇怪的是，在TFJS项目编译后，我并没有找到对应的js代码。不过，这不妨碍我们的分析,具体代码在：
+https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230。pthreadpool_create调用的其实是pthread_create用来创建Web Worker（线程）。
+```
+struct pthreadpool* pthreadpool_create(size_t threads_count) {
+        ...
+		/* Caller thread serves as worker #0. Thus, we create system threads starting with worker #1. */
+		for (size_t tid = 1; tid < threads_count; tid++) {
+			pthread_create(&threadpool->threads[tid].thread_object, NULL, &thread_main, &threadpool->threads[tid]);
+		}
+        ...
+}
+```
+
+所以pthreadpool_create创建的thread pool，其实是通过pthread_create从library_pthread.js的PTHread里面取出若干个Web Worker。
+
+由此可见，pthreadpool_create创建的线程池，其线程来自PThread创建好的WebWorker。而WebWorker的最大数目是PTHREAD_POOL_SIZE决定的。
+因此pthreadpool_create的参数threads_count应该不大于
+
