@@ -76,7 +76,7 @@ https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 给�
 ```
 struct pthreadpool* pthreadpool_create(size_t threads_count);
 ```
-所以通过调整threads_count，其实是可以实现TFJS真实使用的线程数目的控制的（不超过real Thread Pool）。
+threads_count决定了从real Thread Pool里面取出的线程的数目。所以通过调整threads_count，其实是可以实现TFJS真实使用的线程数目的控制的（不超过real Thread Pool）。
 
 backend.cc(TFJS)通过pthreadpool_create创建了一个全局的fake Thread Pool（tfjs::backend::threadpool）。XNN则将所有的计算任务在这个fake Thread Pool之间分配。
 ```
