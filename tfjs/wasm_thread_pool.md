@@ -1,3 +1,5 @@
+
+## 线程池
 本文通过WASM的编译选项PTHREAD_POOL_SIZE和pthreadpool_create来理解WASM的线程池的概念。
 
 在TFJS wasm里面，有两个地方会涉及到线程池大小：
@@ -7,7 +9,7 @@
 
 两个线程池之间的关系是：
 1. 编译选项PTHREAD_POOL_SIZE决定的是真正的Thread Pool，称作real Thread Pool，其实就是PTHREAD_POOL_SIZE个Web Worker。具体代码在https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js 。
-2. pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集,称作fake Thread Pool。
+2. pthreadpool_create创建的POOL，其实是从real Thread Pool取出若干个线程，它应该是real Thread Pool的子集,称作sub Thread Pool。
 
 所以要注意：在WASM平台，pthreadpool_create并不是创建线程池，而是从已经创建好的线程池里面取出若干线程而已。
 
@@ -64,7 +66,7 @@ function pthread_create(threadParams) {
 
 ```
 
-### pthreadpool_create是从real Thread Pool里面取得多个线程，创建fake Thread Pool
+### pthreadpool_create是从real Thread Pool里面取得多个线程，创建sub Thread Pool
 pthreadpool来自https://github.com/Maratyszcza/pthreadpool 。奇怪的是，在TFJS项目编译后，我并没有找到对应的js代码。不过，这不妨碍我们的分析,具体代码在：
 https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 。pthreadpool_create调用的其实是pthread_create。而前面分析已经告诉我们，pthread_create是用来从real Thread Pool里面取得一个Web Worker（线程）。
 ```
@@ -83,14 +85,14 @@ struct pthreadpool* pthreadpool_create(size_t threads_count) {
 由此可见，pthreadpool_create创建的线程池，其线程来自PThread创建好的WebWorker。而WebWorker的最大数目是PTHREAD_POOL_SIZE决定的。
 因此pthreadpool_create的参数threads_count应该不大于PTHREAD_POOL_SIZE。
 
-### 能否通过pthreadpool_create来设置fake Thread Pool的大小？
+### 能否通过pthreadpool_create来设置sub Thread Pool的大小？
 https://github.com/Maratyszcza/pthreadpool/blob/master/src/pthreads.c#L230 给出的函数接口是：
 ```
 struct pthreadpool* pthreadpool_create(size_t threads_count);
 ```
 threads_count决定了从real Thread Pool里面取出的线程的数目。所以通过调整threads_count，其实是可以实现TFJS真实使用的线程数目的控制的（不超过real Thread Pool）。
 
-backend.cc(TFJS)通过pthreadpool_create创建了一个全局的fake Thread Pool（tfjs::backend::threadpool）。XNN则将所有的计算任务在这个fake Thread Pool之间分配。
+backend.cc(TFJS)通过pthreadpool_create创建了一个全局的sub Thread Pool（tfjs::backend::threadpool）。XNN则将所有的计算任务在这个sub Thread Pool之间分配。
 ```
 pthreadpool *threadpool = pthreadpool_create(
     std::min(std::max(num_cores, min_num_threads), max_num_threads));
@@ -103,3 +105,48 @@ pthreadpool *threadpool = pthreadpool_create(
 https://github.com/axinging/GPUDocs/blob/master/tfjs/thread_test.c
 https://github.com/axinging/GPUDocs/blob/master/tfjs/thread_test.js
 
+
+
+## 线程池大小的计算
+### EMSDK 提供编译选项PTHREAD_POOL_SIZE进行设置线程数目、emscripten_num_logical_cores获取线程数目
+EMSDK 在PR https://github.com/emscripten-core/emscripten/pull/10263 里面加入了对编译选项PTHREAD_POOL_SIZE的支持，用以指定线程池里面创建的线程数目。
+
+此外，EMSDK还定义了emscripten_num_logical_cores函数，这个函数和PTHREAD_POOL_SIZE的值是一样的。
+位于：https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js#L641 。
+```
+  emscripten_num_logical_cores: function() {
+#if ENVIRONMENT_MAY_BE_NODE
+    if (ENVIRONMENT_IS_NODE) return require('os').cpus().length;
+#endif
+    return navigator['hardwareConcurrency'];
+  },
+```
+
+这是SDK提供的SET和GET。所以从原理上来说，针对EMSDK的情况，一旦编译选项确定，那么PThread创建的总的线程数目其实是不可以更改的。
+但是，pthreadpool_create在这个机制上打开了一个洞，可以从PThread创建的总的线程即前文提到的real Thread Pool里面取出一部分线程，用来创建一个sub Thread Pool。
+TFJS的WASM实现就是通过pthreadpool_create来实现这个sub Thread Pool。当然了，如果pthreadpool_create指定的线程数目，和PTHREAD_POOL_SIZE一样，那么sub Thread Pool其实就等同于real Thread Pool。本质上，pthreadpool_create其实是pthreadpool_get。
+
+### TFJS WASM
+TFJS 在PR https://github.com/tensorflow/tfjs/pull/4957 里面使用了这个编译选项：
+```
+linkopts = 
+    "-s PTHREAD_POOL_SIZE=" + "'Math.min(4, Math.max(1, (navigator.hardwareConcurrency || 1) / 2))'"
+```
+根据PR里面的解释，这个选项是必须的，否则会导致hang。
+
+TFJS在通过threadpool_create创建线程池之前（backend.cc），使用了emscripten_num_logical_cores来获得线程池的数目。
+https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L58
+```
+#ifdef __EMSCRIPTEN_PTHREADS__
+int num_cores = emscripten_num_logical_cores() / 2;
+#else
+int num_cores = 1;
+#endif
+
+int min_num_threads = 1;
+int max_num_threads = 4;
+pthreadpool *threadpool = pthreadpool_create(
+    std::min(std::max(num_cores, min_num_threads), max_num_threads));
+```
+
+对比下这段代码和PTHREAD_POOL_SIZE（linkopts）指定的值，两者完全是一样的。
