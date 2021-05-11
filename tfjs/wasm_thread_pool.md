@@ -150,3 +150,12 @@ pthreadpool *threadpool = pthreadpool_create(
 ```
 
 对比下这段代码和PTHREAD_POOL_SIZE（linkopts）指定的值，两者完全是一样的。
+
+
+|Interface  | User  |
+|------------------|----|
+| THREAD_POOL_SIZE                | linkops|
+| emscripten_num_logical_cores              | c/c++ |
+| pthread_create               | c/c++ | 
+| pthreadpool_create               | c/c++ | 
+| PTHREAD_POOL_SIZE  |library_pthread.js(emsdk)|
