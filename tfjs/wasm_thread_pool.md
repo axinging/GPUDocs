@@ -1,8 +1,8 @@
 本文通过WASM的编译选项PTHREAD_POOL_SIZE和pthreadpool_create来理解WASM的线程池的概念。
 
 在TFJS wasm里面，有两个地方会涉及到线程池大小：
-1. 在TFJS编译的时候，会通过PTHREAD_POOL_SIZE来指定线程池的大小, 并创建相应大小的线程池。
-2. 与此同时，在wasm/backend.cc（https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L65 ） 里面，pthreadpool_create也会创建一个线程池，这个线程池的大小可以通过一个thread_count的参数就指定。
+1. 在TFJS编译的时候，会通过PTHREAD_POOL_SIZE（编译选项传入）来指定线程池的大小, 并创建相应大小的线程池。
+2. 与此同时，在wasm/backend.cc（https://github.com/tensorflow/tfjs/blob/master/tfjs-backend-wasm/src/cc/backend.cc#L65 ） 里面，pthreadpool_create也会创建一个线程池，这个线程池的大小可以通过一个thread_count的参数来指定。
 
 
 两个线程池之间的关系是：
