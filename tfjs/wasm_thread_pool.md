@@ -19,8 +19,9 @@
 
 编译选项PTHREAD_POOL_SIZE决定了创建了几个Web Worker （linkops： https://github.com/tensorflow/tfjs/pull/4957/files#diff-7b82359d52b7dc5160e130024cc2759216a1a0fc63769dad1c5d076a362bf6e1R62）
 
-library_pthread.js会创建PThread对象。这个对象根据PTHREAD_POOL_SIZE的大小，创建一个PThread.unusedWorkers数组，成员是Web Worker。
-
+每个使用了PThread的程序会创建PThread对象。这个对象根据PTHREAD_POOL_SIZE的大小，创建一个PThread.unusedWorkers数组，成员是Web Worker。
+要注意的是，每个使用了PThread的程序，都会被注入一段PThread相关的代码。而这段被注入的代码，其实是根据library_pthread.js来生成的。我们将library_pthread.js称作模板。
+譬如library_pthread.js创建线程池的代码，是下面这个样子的：
 ```
 #if PTHREAD_POOL_SIZE
       var pthreadPoolSize = {{{ PTHREAD_POOL_SIZE }}};
@@ -30,6 +31,17 @@ library_pthread.js会创建PThread对象。这个对象根据PTHREAD_POOL_SIZE�
       }
 #endif
 ```
+注意这是一段模板。并不是实际程序运行的代码。示例https://github.com/axinging/GPUDocs/blob/master/tfjs/thread_test.js#L933 ，生成的实际的代码是这样的：
+```
+  initMainThreadBlock: function() {
+    var pthreadPoolSize = 2;
+    for (var i = 0; i < pthreadPoolSize; ++i) {
+      PThread.allocateUnusedWorker()
+    }
+  },
+```
+显然，类似if PTHREAD_POOL_SIZE这样的宏定义被去掉了。
+
 只要WASM enable了多线程，那么默认就会创建PTHREAD_POOL_SIZE个线程。这是WASM线程的总开关，native通过pthread_create创建的线程数目，不能超过这个数。
 
 ### pthread_create 是从real Thread Pool里面取得一个线程
