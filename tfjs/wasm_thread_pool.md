@@ -111,7 +111,7 @@ https://github.com/axinging/GPUDocs/blob/master/tfjs/thread_test.js
 ### EMSDK 提供编译选项PTHREAD_POOL_SIZE进行设置线程数目、emscripten_num_logical_cores获取线程数目
 EMSDK 在PR https://github.com/emscripten-core/emscripten/pull/10263 里面加入了对编译选项PTHREAD_POOL_SIZE的支持，用以指定线程池里面创建的线程数目。
 
-此外，EMSDK还定义了emscripten_num_logical_cores函数，这个函数和PTHREAD_POOL_SIZE的值是一样的。
+此外，EMSDK还定义了emscripten_num_logical_cores函数，这个函数和PTHREAD_POOL_SIZE的值是一样的。要注意的是：这个函数只能native访问，js不可以。还有，PTHREAD_POOL_SIZE只能在EMSDK里面使用，TFJS wasm里面没法使用。
 位于：https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js#L641 。
 ```
   emscripten_num_logical_cores: function() {
