@@ -19,7 +19,7 @@
 当pthreadpool_create（thread_count） <= PTHREAD_POOL_SIZE的时候，sub Thread Pool的线程来自real Thread Pool。
 当pthreadpool_create（thread_count） > PTHREAD_POOL_SIZE的时候，会先创建Web Worker，追加到real Thread Pool，所以sub Thread Pool的线程也来自real Thread Pool。
 
-从这里可以看出，pthreadpool_create（thread_count）和编译选项PTHREAD_POOL_SIZE其实没有必然联系，完全可以自行设置任何值(0会hang)。
+从这里可以看出，pthreadpool_create（thread_count）和编译选项PTHREAD_POOL_SIZE没有必然联系，完全可以自行设置任何值(0会hang)。
 
 下面是代码分析。
 ### real Thread Pool的初始创建（创建PTHREAD_POOL_SIZE个Web Worker）
@@ -250,10 +250,10 @@ emcc -O2 -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=32 -o thread_simple.js thread_si
 ```
 
 ## 线程池大小的计算
-### EMSDK 提供编译选项PTHREAD_POOL_SIZE进行设置线程数目、emscripten_num_logical_cores获取线程数目
+### EMSDK 提供编译选项PTHREAD_POOL_SIZE进行设置线程数目、emscripten_num_logical_cores获取logical cores数目
 EMSDK 在PR https://github.com/emscripten-core/emscripten/pull/10263 里面加入了对编译选项PTHREAD_POOL_SIZE的支持，用以指定线程池里面创建的初始线程数目。
 
-此外，EMSDK还定义了emscripten_num_logical_cores函数，这个函数和PTHREAD_POOL_SIZE的值是一样的。要注意的是：这个函数只能native访问，js不可以。还有，PTHREAD_POOL_SIZE只能在EMSDK里面使用，TFJS wasm里面没法使用。
+此外，EMSDK还定义了emscripten_num_logical_cores函数。要注意的是：这个函数只能native访问，js不可以。还有，PTHREAD_POOL_SIZE只能在EMSDK里面使用，TFJS wasm里面没法使用。
 位于：https://github.com/emscripten-core/emscripten/blob/main/src/library_pthread.js#L641 。
 ```
   emscripten_num_logical_cores: function() {
