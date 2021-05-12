@@ -19,6 +19,8 @@
 当pthreadpool_create（thread_count） <= PTHREAD_POOL_SIZE的时候，sub Thread Pool的线程来自real Thread Pool。
 当pthreadpool_create（thread_count） > PTHREAD_POOL_SIZE的时候，会先创建Web Worker，追加到real Thread Pool，所以sub Thread Pool的线程也来自real Thread Pool。
 
+从这里可以看出，pthreadpool_create（thread_count）和编译选项PTHREAD_POOL_SIZE其实没有必然联系，完全可以自行设置任何值(0会hang)。
+
 下面是代码分析。
 ### real Thread Pool的初始创建（创建PTHREAD_POOL_SIZE个Web Worker）
 
@@ -145,7 +147,9 @@ pthreadpool *threadpool = pthreadpool_create(
     std::min(std::max(num_cores, min_num_threads), max_num_threads));
 ```
 
-对比下这段代码和PTHREAD_POOL_SIZE（linkopts）指定的值，两者完全是一样的。
+对比下这段代码和PTHREAD_POOL_SIZE（linkopts）指定的值，两者完全是一样的。但是实际上并没有必要保持一致。
+
+
 
 
 |Interface  | User  |
