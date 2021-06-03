@@ -1,0 +1,52 @@
+
+Limitations: 
+
+1. builtin workgroup_size: can not be accessed by shader;
+```
+// [[builtin(workgroup_size)]] wg_size : vec3<u32>
+// resultMatrix.numbers[index] = f32(wg_size.x);
+```
+
+2. Uniform can not be accessed globally.
+
+```
+// float NAN; int sizeA; int sizeB;
+[[block]] struct Uniforms {
+  NAN : f32;
+  size: vec2<u32>;
+};
+[[group(0), binding(3)]] var<uniform> uniforms : Uniforms;
+// let sizeA : u32 = uniforms.size[0];  //Not work!
+```
+
+3. shared memory size can not be var or uniform (caused by 2);
+
+```
+// let TileSize : u32 = 4;
+var<workgroup> mm_Asub : array<f32, 4>;
+```
+
+4. function can not be overloaded
+```
+// Checks whether coordinates lie within the bounds of the shape.
+fn coordsInBounds4(coord: vec4<i32>, shape: vec4<i32>) -> bool {
+  return all(coord >= vec4<i32>(0, 0, 0, 0)) &&
+      all(coord < shape);
+}
+fn coordsInBounds3(coord: vec3<i32>, shape: vec3<i32>) -> bool{
+  return all(coord >= vec3<i32>(0, 0, 0)) &&
+      all(coord < shape);
+}
+fn coordsInBounds2(coord: vec2<i32>, shape: vec2<i32>) -> bool {
+  return all(coord >= vec2<i32>(0, 0)) &&
+      all(coord < shape);
+}
+```
+
+
+
+
+
+
+
+
