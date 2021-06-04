@@ -62,6 +62,8 @@ fn dottest4(a: vec4<f32>, b : vec4<f32>) ->f32 {
 }
 ```
 
+Not, dot only supports vector f32:
+dot(vecN<f32>, vecN<f32>) -> f32
 
 5. less ops
 
