@@ -91,7 +91,7 @@ resData = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 
 ```
 
-7. cannot assign to value of type
+7. function parameter is immutable
 
 ```
 // error: cannot assign to value of type 'u32'
@@ -110,5 +110,30 @@ fn inputVar2(index: u32) ->u32 {
 }
 ```
 
-
+8. Bool can not be casted
+  
+  ```
+    let aLessThanZero : vec4<f32> = vec4<f32>(a < vec4<f32>(0.));
+  return (aLessThanZero * (b * a)) + ((vec4<f32>(1.0) - aLessThanZero) * a);
+  ```
+  
+  ```
+      // error: type in vector constructor does not match vector type: expected 'f32', found 'bool'
+    fn unknow() -> vec4<f32> {
+      let a : vec4<f32>= vec4<f32>(0.,0., 0., 0.);
+      let b : vec4<f32>= vec4<f32>(0.,0., 0., 0.);
+      let aLessThanZero : vec4<bool> = vec4<bool>(a < vec4<f32>(0.,0., 0., 0.));
+      var aLessThanZeroF32 : vec4<f32> = vec4<f32>(0.,0., 0., 0.); 
+      if (aLessThanZero[0]) {
+        aLessThanZeroF32[0] = 1.0;
+      }
+      // var i :u32 = 0u;
+      for (var i:u32 = 0u; i< 4u; i = i+1u ) {
+        if (aLessThanZero[i]) {
+          aLessThanZeroF32[i] = 1.0;
+        }
+      }
+      return (vec4<f32>(aLessThanZeroF32) * (b * a)) + ((vec4<f32>(1.0, 1.0,1.0,1.0) - vec4<f32>(aLessThanZeroF32)) * a);
+    }
+  ```
 
