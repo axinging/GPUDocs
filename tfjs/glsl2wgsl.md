@@ -79,12 +79,14 @@ Not work:
 resData = coordsInBounds(coord, xShape) ?
         x[getFlatIndex(coord, xShape) / 4] : vec4(0.0, 0.0, 0.0, 0.0);
 ```
-Work:
+Work ({} is required):
 ```
-if (coordsInBounds(coord, xShape))
+if (coordsInBounds(coord, xShape)) {
 resData = x.numbers[getFlatIndex(coord, xShape) / 4];
-else
-resData = vec4<f32>(0.0, 0.0, 0.0, 0.0);` :
+} else {
+resData = vec4<f32>(0.0, 0.0, 0.0, 0.0); 
+} 
+
 ```
 
 8. 
