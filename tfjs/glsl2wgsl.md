@@ -99,7 +99,14 @@ fn inputVar(index: u32) ->u32 {
     return a;
 }
 ```
-
+Below works:
+```
+fn inputVar2(index: u32) ->u32 {
+    var index2 : u32 = index - 3u;
+    let a : u32 = index2;
+    return a;
+}
+```
 
 
 
