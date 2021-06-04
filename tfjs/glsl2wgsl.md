@@ -43,6 +43,25 @@ fn coordsInBounds2(coord: vec2<i32>, shape: vec2<i32>) -> bool {
 }
 ```
 
+From: https://www.w3.org/TR/WGSL/#builtin-functions
+"
+Unlike ordinary functions defined in a WGSL program, a built-in function may use the same function name with different sets of parameters. In other words, a built-in function may have more than one overload, but ordinary function definitions in WGSL may not.
+"
+
+For examples, 
+```
+dot(e1: vecN<T>,e2: vecN<T>) -> T 
+```
+Works with differnet kind of inputs:
+```
+fn dottest(a: vec2<f32>, b : vec2<f32>) ->f32 {
+  return dot(a, b);
+}
+fn dottest4(a: vec4<f32>, b : vec4<f32>) ->f32 {
+  return dot(a, b);
+}
+```
+
 
 5. less ops
 
