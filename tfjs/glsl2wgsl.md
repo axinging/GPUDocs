@@ -44,6 +44,16 @@ fn coordsInBounds2(coord: vec2<i32>, shape: vec2<i32>) -> bool {
 ```
 
 
+5. less ops
+
+```
+index -= d0 * outShapeStrides[0];
+=>
+index = index - d0 * outShapeStrides[0]
+
+```
+
+7. 
 
 
 
