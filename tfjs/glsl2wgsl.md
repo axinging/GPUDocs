@@ -89,9 +89,16 @@ resData = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 
 ```
 
-8. 
+7. cannot assign to value of type
 
-
+```
+// error: cannot assign to value of type 'u32'
+fn inputVar(index: u32) ->u32 {
+    index = index - 3u;
+    let a : u32 = index;
+    return a;
+}
+```
 
 
 
