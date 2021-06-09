@@ -137,3 +137,8 @@ fn inputVar2(index: u32) ->u32 {
     }
   ```
 
+  9. unable to find called function: inversesqrt
+  1/sqrt(a)
+  
+ 
+  
