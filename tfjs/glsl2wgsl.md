@@ -155,6 +155,16 @@ fn inputVar2(index: u32) ->u32 {
   
   10. 
   ```
+  229:34 error: expected ';' for let declaration
+  let TileAOuter : u32 = u32(16) * RowPerThread;
+                                 ^
+  230:34 error: expected ';' for let declaration
+  let TileBOuter : u32 = u32(16) * ColPerThread;
+                                 ^
+  231:25 error: unknown type 'TileBOuter'
+  let TileInner : u32 = TileBOuter;
+  
+  
   let RowPerThread : u32 = 4u;
   let ColPerThread : u32 = 4u; // only support ColPerThread = 4
   let TileAOuter : u32 = u32(16) * RowPerThread;
