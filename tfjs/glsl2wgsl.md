@@ -137,8 +137,18 @@ fn inputVar2(index: u32) ->u32 {
     }
   ```
 
-  9. unable to find called function: inversesqrt
+  9. unable to find called function:
+  
+  1）， inversesqrt
   1/sqrt(a)
   
- 
-  
+  2）， POW:
+  ```
+  return (round(mod(b, 2.0)) != 1) ?
+    pow(abs(a), b) : sign(a) * pow(abs(a), b);
+
+  if (i32(round(b % 2.0)) != 1) {
+    return pow(abs(a), b);
+  }
+  return sign(a) * pow(abs(a), b);
+```
