@@ -152,3 +152,13 @@ fn inputVar2(index: u32) ->u32 {
   }
   return sign(a) * pow(abs(a), b);
 ```
+  
+  10. 
+  ```
+  let RowPerThread : u32 = 4u;
+  let ColPerThread : u32 = 4u; // only support ColPerThread = 4
+  let TileAOuter : u32 = u32(16) * RowPerThread;
+  let TileBOuter : u32 = u32(16) * ColPerThread;
+  // error: unknown type 'TileBOuter'
+  let TileInner : u32 = TileBOuter;
+```
