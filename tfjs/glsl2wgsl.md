@@ -172,3 +172,8 @@ fn inputVar2(index: u32) ->u32 {
   // error: unknown type 'TileBOuter'
   let TileInner : u32 = TileBOuter;
 ```
+  
+  11. Type conversion
+  https://www.w3.org/TR/WGSL/#conversion-expr
+  
+  bool to f32: not!
