@@ -153,7 +153,7 @@ fn inputVar2(index: u32) ->u32 {
   return sign(a) * pow(abs(a), b);
 ```
   
-  10. 
+  10. Global code must be immediate data:
   ```
   229:34 error: expected ';' for let declaration
   let TileAOuter : u32 = u32(16) * RowPerThread;
