@@ -177,3 +177,12 @@ fn inputVar2(index: u32) ->u32 {
   https://www.w3.org/TR/WGSL/#conversion-expr
   
   bool to f32: not!
+  
+  ```
+      fn boolToF32(value : bool) -> f32 {
+      if (value) {
+        return 1.0;
+      }
+        return 0.0;
+      }
+  ```
