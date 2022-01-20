@@ -45,8 +45,36 @@ Chrome Tracing 有一个ts的成员，这个成员的时间单位是us（1000us=
 ```
 {"args":{"location":{"file_name":"base/threading/thread.cc","function_name":"Run","line_number":334}},"cat":"test","dur":8374221,"name":"RunLoop::Run","ph":"X","pid":12124,"tdur":2066,"tid":4116,"ts":66695088665,"tts":378},
 ```
-这个时间的单位，和Native通过
+Tracing这个时间的单位是真实的时间，所以单位是us。
+Native通过GetClockCalibration获取的CPU timestamp，是Ticks，除以频率后，这两个时间是可以比较的。
 
+JS通过GPU timestamp获取的也是时间，Native通过GetClockCalibration获取的GPU timestamp，是Ticks，除以频率后，JS时间和Native的GPU时间也可以比较的。
+
+Native获取CPU时间，GPU时间：
+```
+        // Execute the command list.
+        ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+        UINT64 gpuTimestampBegin, gpuTimestampEnd;
+        UINT64 cpuTimestampBegin, cpuTimestampEnd;
+        m_commandQueue->GetClockCalibration(&gpuTimestampBegin, &cpuTimestampBegin);
+        m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+        WaitForGpu();
+
+        m_commandQueue->GetClockCalibration(&gpuTimestampEnd, &cpuTimestampEnd);
+		{
+			// mTimestampPeriod = static_cast<float>(1e9) / frequency;
+			const double gpuAdjust = double(TIME_UNIT) / double(m_timestampFrequency);
+			const double cpuAdjust = double(TIME_UNIT) / double(m_cputimestampFrequency);
+			printf("\n cpuAdjust= %f, gpuAdjust=%f\n", cpuAdjust, gpuAdjust);
+			// printf("\noriginal CPU: %lld,%lld,%f\n", cpuTimestampBegin, cpuTimestampEnd, double((cpuTimestampEnd - cpuTimestampBegin)));
+			// printf("\noriginal GPU: %lld,%lld,%f\n", gpuTimestampBegin, gpuTimestampEnd, double((gpuTimestampEnd - gpuTimestampBegin)));\
+			// printf("\nttt CPU: %lld,%lld,%f\n", double(cpuTimestampBegin)/ double(m_cputimestampFrequency)
+			printf("\nCPU: %f,%f,%f\n", double(cpuTimestampBegin)*double(TIME_UNIT) / double(m_cputimestampFrequency), cpuTimestampEnd *double(TIME_UNIT) / double(m_cputimestampFrequency), double((cpuTimestampEnd - cpuTimestampBegin))* double(TIME_UNIT) / double(m_cputimestampFrequency));
+			printf("\nGPU: %f,%f,%f\n", double(gpuTimestampBegin)*double(TIME_UNIT) / double(m_timestampFrequency), gpuTimestampEnd*double(TIME_UNIT) / double(m_timestampFrequency), double((gpuTimestampEnd - gpuTimestampBegin))* double(TIME_UNIT) / double(m_timestampFrequency));
+		}
+```
+
+JS获取GPU时间：
 ```
   async getTimeFromQuerySet(querySet: GPUQuerySet) {
     const queryBuffer = this.acquireBuffer(
@@ -76,29 +104,6 @@ Chrome Tracing 有一个ts的成员，这个成员的时间单位是us（1000us=
   }
 ```
 
-```
-        // Execute the command list.
-        ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-        UINT64 gpuTimestampBegin, gpuTimestampEnd;
-        UINT64 cpuTimestampBegin, cpuTimestampEnd;
-        m_commandQueue->GetClockCalibration(&gpuTimestampBegin, &cpuTimestampBegin);
-        m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-        WaitForGpu();
-
-        m_commandQueue->GetClockCalibration(&gpuTimestampEnd, &cpuTimestampEnd);
-		{
-			// mTimestampPeriod = static_cast<float>(1e9) / frequency;
-			const double gpuAdjust = double(TIME_UNIT) / double(m_timestampFrequency);
-			const double cpuAdjust = double(TIME_UNIT) / double(m_cputimestampFrequency);
-			printf("\n cpuAdjust= %f, gpuAdjust=%f\n", cpuAdjust, gpuAdjust);
-			// printf("\noriginal CPU: %lld,%lld,%f\n", cpuTimestampBegin, cpuTimestampEnd, double((cpuTimestampEnd - cpuTimestampBegin)));
-			// printf("\noriginal GPU: %lld,%lld,%f\n", gpuTimestampBegin, gpuTimestampEnd, double((gpuTimestampEnd - gpuTimestampBegin)));\
-			// printf("\nttt CPU: %lld,%lld,%f\n", double(cpuTimestampBegin)/ double(m_cputimestampFrequency)
-			printf("\nCPU: %f,%f,%f\n", double(cpuTimestampBegin)*double(TIME_UNIT) / double(m_cputimestampFrequency), cpuTimestampEnd *double(TIME_UNIT) / double(m_cputimestampFrequency), double((cpuTimestampEnd - cpuTimestampBegin))* double(TIME_UNIT) / double(m_cputimestampFrequency));
-			printf("\nGPU: %f,%f,%f\n", double(gpuTimestampBegin)*double(TIME_UNIT) / double(m_timestampFrequency), gpuTimestampEnd*double(TIME_UNIT) / double(m_timestampFrequency), double((gpuTimestampEnd - gpuTimestampBegin))* double(TIME_UNIT) / double(m_timestampFrequency));
-		}
-```
-
 
 ### 具体方案
 
@@ -106,32 +111,31 @@ Chrome Tracing 有一个ts的成员，这个成员的时间单位是us（1000us=
 2. 分别获取各种CPU时间，GPU时间。
 
 ```
+uint64_t frequency = 12000048;
+DAWN_TRY(CheckHRESULT(device->GetCommandQueue()->GetTimestampFrequency(&frequency),
+					  "D3D12 get timestamp frequency"));
 
-	uint64_t frequency = 12000048;
-	DAWN_TRY(CheckHRESULT(device->GetCommandQueue()->GetTimestampFrequency(&frequency),
-						  "D3D12 get timestamp frequency"));
-	
-	LARGE_INTEGER cputimestampFrequency;	  // m_cputimestampFrequency;	 
-	QueryPerformanceFrequency(&cputimestampFrequency);	  
-    // double cpu = static_cast<double>(1e3)/double(cputimestampFrequency.QuadPart);
-	double gpu = static_cast<double>(1e3)/double(frequency);
-	
-	
-	UINT64 gpuTimestampBegin, gpuTimestampEnd;		  
-	UINT64 cpuTimestampBegin, cpuTimestampEnd;		  
-	device->GetCommandQueue()->GetClockCalibration(&gpuTimestampBegin, &puTimestampBegin);
-	device->GetCommandQueue()->GetClockCalibration(&gpuTimestampEnd, &cpuTimestampEnd);
-	char buffer [80];
-	/*
-	snprintf(buffer, 80, "Queue::SubmitImpl: %f, %f, %f,%f", (double)puTimestampBegin*gpu, 
-		(double)gpuTimestampEnd*gpu, (double)cpuTimestampBegin*cpu, (double)cpuTimestampEnd*cpu);
-	*/
+LARGE_INTEGER cputimestampFrequency;	  // m_cputimestampFrequency;	 
+QueryPerformanceFrequency(&cputimestampFrequency);	  
+// double cpu = static_cast<double>(1e3)/double(cputimestampFrequency.QuadPart);
+double gpu = static_cast<double>(1e3)/double(frequency);
 
-	snprintf(buffer, 80, "Queue::SubmitImpl: %f", (double)gpuTimestampBegin*gpu);
-	fprintf(stderr, "%s\n", buffer);
-	dawn::LogMessage log = dawn::InfoLog();
-	log << buffer;
-	device->EmitLog(buffer);
+
+UINT64 gpuTimestampBegin, gpuTimestampEnd;		  
+UINT64 cpuTimestampBegin, cpuTimestampEnd;		  
+device->GetCommandQueue()->GetClockCalibration(&gpuTimestampBegin, &puTimestampBegin);
+device->GetCommandQueue()->GetClockCalibration(&gpuTimestampEnd, &cpuTimestampEnd);
+char buffer [80];
+/*
+snprintf(buffer, 80, "Queue::SubmitImpl: %f, %f, %f,%f", (double)puTimestampBegin*gpu, 
+	(double)gpuTimestampEnd*gpu, (double)cpuTimestampBegin*cpu, (double)cpuTimestampEnd*cpu);
+*/
+snprintf(buffer, 80, "Queue::SubmitImpl: %f", (double)gpuTimestampBegin*gpu);
+fprintf(stderr, "%s\n", buffer);
+dawn::LogMessage log = dawn::InfoLog();
+log << buffer;
+device->EmitLog(buffer);
+
 ```
 
 
