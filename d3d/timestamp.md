@@ -52,26 +52,25 @@ JS通过GPU timestamp获取的也是时间，Native通过GetClockCalibration获�
 
 Native获取CPU时间，GPU时间：
 ```
-        // Execute the command list.
-        ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-        UINT64 gpuTimestampBegin, gpuTimestampEnd;
-        UINT64 cpuTimestampBegin, cpuTimestampEnd;
-        m_commandQueue->GetClockCalibration(&gpuTimestampBegin, &cpuTimestampBegin);
-        m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-        WaitForGpu();
-
-        m_commandQueue->GetClockCalibration(&gpuTimestampEnd, &cpuTimestampEnd);
-		{
-			// mTimestampPeriod = static_cast<float>(1e9) / frequency;
-			const double gpuAdjust = double(TIME_UNIT) / double(m_timestampFrequency);
-			const double cpuAdjust = double(TIME_UNIT) / double(m_cputimestampFrequency);
-			printf("\n cpuAdjust= %f, gpuAdjust=%f\n", cpuAdjust, gpuAdjust);
-			// printf("\noriginal CPU: %lld,%lld,%f\n", cpuTimestampBegin, cpuTimestampEnd, double((cpuTimestampEnd - cpuTimestampBegin)));
-			// printf("\noriginal GPU: %lld,%lld,%f\n", gpuTimestampBegin, gpuTimestampEnd, double((gpuTimestampEnd - gpuTimestampBegin)));\
-			// printf("\nttt CPU: %lld,%lld,%f\n", double(cpuTimestampBegin)/ double(m_cputimestampFrequency)
-			printf("\nCPU: %f,%f,%f\n", double(cpuTimestampBegin)*double(TIME_UNIT) / double(m_cputimestampFrequency), cpuTimestampEnd *double(TIME_UNIT) / double(m_cputimestampFrequency), double((cpuTimestampEnd - cpuTimestampBegin))* double(TIME_UNIT) / double(m_cputimestampFrequency));
-			printf("\nGPU: %f,%f,%f\n", double(gpuTimestampBegin)*double(TIME_UNIT) / double(m_timestampFrequency), gpuTimestampEnd*double(TIME_UNIT) / double(m_timestampFrequency), double((gpuTimestampEnd - gpuTimestampBegin))* double(TIME_UNIT) / double(m_timestampFrequency));
-		}
+// Execute the command list.
+ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+UINT64 gpuTimestampBegin, gpuTimestampEnd;
+UINT64 cpuTimestampBegin, cpuTimestampEnd;
+m_commandQueue->GetClockCalibration(&gpuTimestampBegin, &cpuTimestampBegin);
+m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+WaitForGpu();
+m_commandQueue->GetClockCalibration(&gpuTimestampEnd, &cpuTimestampEnd);
+{
+	// mTimestampPeriod = static_cast<float>(1e9) / frequency;
+	const double gpuAdjust = double(TIME_UNIT) / double(m_timestampFrequency);
+	const double cpuAdjust = double(TIME_UNIT) / double(m_cputimestampFrequency);
+	printf("\n cpuAdjust= %f, gpuAdjust=%f\n", cpuAdjust, gpuAdjust);
+	// printf("\noriginal CPU: %lld,%lld,%f\n", cpuTimestampBegin, cpuTimestampEnd, double((cpuTimestampEnd - cpuTimestampBegin)));
+	// printf("\noriginal GPU: %lld,%lld,%f\n", gpuTimestampBegin, gpuTimestampEnd, double((gpuTimestampEnd - gpuTimestampBegin)));\
+	// printf("\nttt CPU: %lld,%lld,%f\n", double(cpuTimestampBegin)/ double(m_cputimestampFrequency)
+	printf("\nCPU: %f,%f,%f\n", double(cpuTimestampBegin)*double(TIME_UNIT) / double(m_cputimestampFrequency), cpuTimestampEnd *double(TIME_UNIT) / double(m_cputimestampFrequency), double((cpuTimestampEnd - cpuTimestampBegin))* double(TIME_UNIT) / double(m_cputimestampFrequency));
+	printf("\nGPU: %f,%f,%f\n", double(gpuTimestampBegin)*double(TIME_UNIT) / double(m_timestampFrequency), gpuTimestampEnd*double(TIME_UNIT) / double(m_timestampFrequency), double((gpuTimestampEnd - gpuTimestampBegin))* double(TIME_UNIT) / double(m_timestampFrequency));
+}
 ```
 
 JS获取GPU时间：
