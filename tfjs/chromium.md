@@ -4,6 +4,8 @@
 ### CMD:
 out\Default\chrome.exe  --enable-logging=stderr --v=1 > log.txt 2>&1   http://localhost:8080/hello.html
 
+Log is also available from: Sawbuck
+
 ### Blink:
 ```
 #include <base/debug/stack_trace.h>
