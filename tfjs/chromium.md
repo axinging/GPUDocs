@@ -34,5 +34,5 @@ device->EmitLog(WGPULoggingType_Info, procID);
 
 ## How to tracing chromium:
 ```
-chrome.exe --disable-dawn-features=disallow_unsafe_apis  --enable-dawn-features=record_detailed_timing_in_trace_events --enable-unsafe-webgpu --enable-tracing=disabled-by-default-gpu.dawn,blink.console  --trace-startup-file=c:\trace.json
+chrome.exe --disable-dawn-features=disallow_unsafe_apis  --enable-dawn-features=record_detailed_timing_in_trace_events --enable-unsafe-webgpu --enable-tracing=disabled-by-default-gpu.dawn,blink.console  --trace-startup-file=c:\trace.json url
 ```
