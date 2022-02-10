@@ -176,8 +176,55 @@ Time = 1000 * Ticks/Frequency (s).
 
 CPU ticks:
 
+## How to get timestamp of dawn
 
+1. Enable TimestampQuery and unsafe_apis
+```
+    std::vector<wgpu::FeatureName> requiredFeatures = {};
+    requiredFeatures.push_back(wgpu::FeatureName::TimestampQuery);
+    wgpu::DeviceDescriptor deviceDescriptor = {};
+    deviceDescriptor.requiredFeatures = requiredFeatures.data();
+    deviceDescriptor.requiredFeaturesCount = requiredFeatures.size();
 
+    std::vector<const char*> forceDisabledToggles = {};
+    // Disabled disallowing unsafe APIs so we can test them.
+    forceDisabledToggles.push_back("disallow_unsafe_apis");
+    wgpu::DawnTogglesDeviceDescriptor togglesDesc = {};
+    togglesDesc.forceDisabledToggles = forceDisabledToggles.data();
+    togglesDesc.forceDisabledTogglesCount = forceDisabledToggles.size();
+
+    deviceDescriptor.nextInChain = &togglesDesc;
+
+    WGPUDevice backendDevice = backendAdapter.CreateDevice(&deviceDescriptor);
+    DawnProcTable backendProcs = dawn_native::GetProcs();
+```
+
+2. Get GPU timestamp per submit
+```
+    MaybeError Queue::SubmitImpl(uint32_t commandCount, CommandBufferBase* const* commands) {
+        Device* device = ToBackend(GetDevice());
+
+        DAWN_TRY(device->Tick());
+
+        uint64_t frequency = 12000048;
+        DAWN_TRY(CheckHRESULT(device->GetCommandQueue()->GetTimestampFrequency(&frequency),
+                              "D3D12 get timestamp frequency"));
+
+        LARGE_INTEGER cputimestampFrequency;
+        QueryPerformanceFrequency(&cputimestampFrequency);
+        double gpu = static_cast<double>(1e3) / double(frequency);
+
+        UINT64 gpuTimestampBegin, gpuTimestampEnd;
+        UINT64 cpuTimestampBegin, cpuTimestampEnd;
+        device->GetCommandQueue()->GetClockCalibration(&gpuTimestampBegin, &cpuTimestampBegin);
+        device->GetCommandQueue()->GetClockCalibration(&gpuTimestampEnd, &cpuTimestampEnd);
+        char buffer[80];
+        snprintf(buffer, 80, "%f", (double)gpuTimestampBegin * gpu);
+        fprintf(stderr, "Queue::SubmitImpl %s, frequency= %llu\n", buffer, frequency);
+
+        CommandRecordingContext* commandContext;
+        DAWN_TRY_ASSIGN(commandContext, device->GetPendingCommandContext());
+```
 
 
 
