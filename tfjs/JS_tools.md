@@ -1,4 +1,18 @@
+** mulitine line regex
+```
+  async function readFileAsync(url) {
+    return await fs.readFile(url, "binary");
+  }
+  const strMatch = await readFileAsync('20220223102951.log');
+  var matchReg = /predictbegin.*?predictend/gi;
+  console.log(strMatch.match(matchReg));
+
+  matchReg = /gpudatabegin.*?gpudataend/gi;
+  console.log(strMatch.match(matchReg));
+```
+
 ** Get logs from playwright console
+
 ```
 let results = [];
 let successIndex = 0;
