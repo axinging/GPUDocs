@@ -24,32 +24,32 @@ function padZero(str) {
 }
 function getTimestamp(format) {
   const date = new Date();
-  let timestamp = date.getFullYear() + padZero(date.getMonth() + 1) + padZero(date.getDate());
+  let timestamp = date.getFullYear() + padZero(date.getMonth() + 1) +
+      padZero(date.getDate());
   if (format == 'second') {
-    timestamp += padZero(date.getHours()) + padZero(date.getMinutes()) + padZero(date.getSeconds());
+    timestamp += padZero(date.getHours()) + padZero(date.getMinutes()) +
+        padZero(date.getSeconds());
   }
   return timestamp;
 }
 
 function saveJson(gpuJsonData, modelSummarDir, modelName) {
-  const modelCount = gpuJsonData.length;
-  console.log(modelCount);
+  let mergedJson = [];
   for (var i = 0; i < gpuJsonData.length; i++) {
     // Tracing may possible be repeated. predictJsonData[0]['times'].length
     // is the repeat count.
-    const fileName = modelSummarDir + '\\' + modelName + i + '.json';
-    console.log(fileName);
-    fs.writeFileSync(
-      fileName, JSON.stringify(gpuJsonData[i]));
+
+    const fileName = modelSummarDir + '\\' + modelName + '_' + i + '_gpu.json';
+    mergedJson = mergedJson.concat(gpuJsonData[i]);
+    fs.writeFileSync(fileName, JSON.stringify(gpuJsonData[i]));
   }
+  const fileName = modelSummarDir + '\\' + modelName + '_all_gpu.json';
+  fs.writeFileSync(fileName, JSON.stringify(mergedJson));
 }
 
 
-
-
 (async function() {
-
-  const modelSummarDir = __dirname + '\\'+ getTimestamp('second');
+  const modelSummarDir = __dirname + '\\' + getTimestamp('second');
   console.log(modelSummarDir);
   try {
     if (!fs.existsSync(modelSummarDir)) {
@@ -60,10 +60,11 @@ function saveJson(gpuJsonData, modelSummarDir, modelName) {
   }
 
   const modelName = 'mobilenet_v2';
-  const tracingJsonFileName = modelSummarDir + '\\' + modelName+ '.json'
-  let url =``;
-  url += `?task=performance&benchmark=${modelName}&backend=webgpu&WEBGL_USE_SHAPES_UNIFORMS=true&CHECK_COMPUTATION_FOR_ERRORS=false&tracing=true&warmup=1&run=1&localBuild=webgl,webgpu,core`;
-  let logFile = modelSummarDir + '\\' + modelName+ '.log'
+  const tracingJsonFileName = modelSummarDir + '\\' + modelName + '.json'
+  let url = `https://local/tfjs/e2e/benchmarks/local-benchmark/`;
+  url += `?task=performance&benchmark=${
+      modelName}&backend=webgpu&WEBGL_USE_SHAPES_UNIFORMS=true&CHECK_COMPUTATION_FOR_ERRORS=false&tracing=true&warmup=1&run=1&localBuild=webgl,webgpu,core`;
+  let logFile = modelSummarDir + '\\' + modelName + '.log';
   await runURL(url, tracingJsonFileName, logFile);
   const fsasync = require('fs').promises;
   const logStr = await fsasync.readFile(logFile, 'binary');
