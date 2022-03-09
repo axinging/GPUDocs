@@ -1,4 +1,4 @@
-** mulitine line regex
+## mulitine line regex
 ```
   async function readFileAsync(url) {
     return await fs.readFile(url, "binary");
@@ -11,13 +11,12 @@
   console.log(strMatch.match(matchReg));
 ```
 
-** Get logs from playwright console
+## Get logs from playwright console
 
 ```
-let results = [];
-let successIndex = 0;
-let failIndex = 0;
-let logEnd = false;
+'use strict';
+
+const {chromium} = require('playwright');
 
 let logStatus = {logEnd: false};
 
@@ -40,25 +39,66 @@ async function waitForCondition(condition) {
 }
 
 
-page.on('console', msg => {
-        console.log(msg);
-        let msgStr = ('' + msg.args()[0]).replace('JSHandle@', '');
-        if (msgStr.startsWith('SUCCESS')) {
-          successIndex++;
-        } else if (msgStr.startsWith('FAILED')) {
-          results[failIndex] = msgStr;
-          failIndex++;
-        } else if (msgStr.startsWith('Skipped')) {
-          console.log("ennnnnnnnnnnnnnnn");
-          logStatus.logEnd = true;
-        } else {
-          // Unsupported.
-        }
-      });
+const browserPath =
+    `${process.env.LOCALAPPDATA}/Google/Chrome SxS/Application/chrome.exe`;
+const userDataDir = `${process.env.LOCALAPPDATA}/Google/Chrome SxS/User Data`;
+const browserArgs =
+    `--disable-dawn-features=disallow_unsafe_apis  --enable-dawn-features=record_detailed_timing_in_trace_events,disable_timestamp_query_conversion --enable-unsafe-webgpu --enable-tracing=disabled-by-default-gpu.dawn  --trace-startup-file=tracing.json --trace-startup-format=json`;
+const logFile = `consolelog.log`;
 
-      page.on("pageerror", (err) => {
-        console.log(err.message)
-      });
+function log(info) {
+  console.log(info);
+  const fs = require('fs');
+  fs.appendFileSync(logFile, String(info) + '\n');
+}
+
+async function startContext(exitCondition) {
+  let context = await chromium.launchPersistentContext(userDataDir, {
+    headless: false,
+    executablePath: browserPath,
+    viewport: null,
+    ignoreHTTPSErrors: true,
+    args: browserArgs.split(' '),
+  });
+  let page = await context.newPage();
+
+  page.on('console', async msg => {
+    for (let i = 0; i < msg.args().length; ++i) {
+      log(`[console] ${i}: ${await msg.args()[i].jsonValue()}`);
+    }
+
+    let msgStr = ('' + msg.args()[0]).replace('JSHandle@', '');
+    if (msgStr.includes('gpudataend')) {
+      exitCondition.logEnd = true;
+    } else {
+      // Unsupported.
+    }
+  });
+  page.on('pageerror', (err) => {console.log(err.message)});
+  return [context, page];
+}
+
+async function closeContext(context) {
+  await context.close();
+}
+
+async function runBenchmark(url) {
+  const [context, page] = await startContext(logStatus);
+  await page.goto(url);
+  await waitForCondition(logStatus);
+
+  await closeContext(context);
+}
+
+const url = '';
+
+(async function() {
+  if (url == '') {
+    throw 'URL is empty';
+  }
+  await runBenchmark(url);
+})();
+
  ```
       
       
