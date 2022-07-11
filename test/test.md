@@ -1,3 +1,4 @@
+```
 export https_proxy=http://chilldabc.com:913/
 export http_proxy=http://chilldabc.com:913/
 
@@ -11,3 +12,4 @@ yarn config set https-proxy http://chilldabc.com:913/
 npm config set http.proxy http://chilldabc.com:913/
 npm config set https.proxy http://chilldabc.com:913/
 git clone https://github.com/webatintel/webtest.git
+```
