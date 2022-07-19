@@ -1,6 +1,6 @@
 ```
-export https_proxy=http://child-abc.com:913/
-export http_proxy=http://child-abc.com:913/
+set https_proxy=http://child-abc.com:913/
+set http_proxy=http://child-abc.com:913/
 
 winget install --id=Python.Python.3 -e
 winget install --id Git.Git -e --source winget
