@@ -46,3 +46,24 @@ git clone https://github.com/webatintel/webtest.git
 
 msiexec.exe /a https://nodejs.org/dist/v16.16.0/node-v16.16.0-x64.msi /quiet
 winget install --id Git.Git -e --source winget
+
+
+
+
+unsupported swap chain format
+16context configuration is invalid.
+16[Invalid Texture] is invalid.
+ - While calling [Invalid Texture].CreateView([TextureViewDescriptor]).
+
+16[Invalid TextureView] is invalid.
+ - While validating entries[0] as a Texture.
+Expected entry layout: { binding: 0, visibility: ShaderStage::Compute, storageTexture: { access: StorageTextureAccess::WriteOnly, format: TextureFormat::RGBA8Unorm, viewDimension: TextureViewDimension::e2D } }
+ - While validating [BindGroupDescriptor] against [BindGroupLayout]
+ - While calling [Device].CreateBindGroup([BindGroupDescriptor]).
+
+16[Invalid BindGroup] is invalid.
+ - While encoding [ComputePassEncoder].SetBindGroup(0, [Invalid BindGroup], 0, ...).
+
+16[Invalid CommandBuffer] is invalid.
+    at ValidateObject (..<URL>)
+    at ValidateSubmit (..<URL>)
