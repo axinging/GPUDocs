@@ -1,4 +1,27 @@
 ```
+CURRENT_BRANCH=$(git branch --show-current)
+git checkout master
+git remote add upstream  https://github.com/tensorflow/tfjs.git
+git fetch upstream
+git checkout master
+git rebase upstream/master
+git checkout master
+git push
+git checkout $CURRENT_BRANCH
+git rebase master
+
+yarn
+yarn bazel clean
+cd link-package && yarn build-deps-for tfjs-backend-webgpu tfjs-core tfjs-backend-cpu  tfjs-backend-webgl tfjs-converter
+cd ../tfjs-backend-webgpu && rm -fr node_modules && yarn && yarn build-npm
+yarn --cwd .. bazel build //tfjs-backend-webgpu/src:tests
+ln -s ../dist/bin/tfjs-backend-webgpu/src/tests.ts tests
+yarn && yarn build-npm
+yarn karma start --no-single-run  --grep="toPixels"
+```
+
+
+```
 set https_proxy=http://child-abc.com:913/
 set http_proxy=http://child-abc.com:913/
 
