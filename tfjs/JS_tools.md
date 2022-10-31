@@ -101,4 +101,22 @@ const url = '';
 
  ```
       
-      
+## Use expect.toBe outside jtest
+
+```
+        function expect(actualValue) {
+          return {
+            toBe(comparisonValue) {
+              if (actualValue !== comparisonValue) {
+                throw new Error(`${actualValue} is not equal to ${comparisonValue}`);
+              }
+            },
+            toBeGreaterThan(comparisonValue) {
+              if (actualValue <= comparisonValue) {
+                throw new Error(`${actualValue} is not greater than ${comparisonValue}`);
+            }
+          }
+        }
+      }
+```
+
