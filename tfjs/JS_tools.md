@@ -119,4 +119,8 @@ const url = '';
         }
       }
 ```
+Use case:
+```
+expect(getMem().numBytesInGPU).toBe(8);
+```
 
