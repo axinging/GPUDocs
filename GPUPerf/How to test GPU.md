@@ -1,6 +1,15 @@
 
-
 ## Intel GPU tools (Linux)
+
+Check is kernel is lock down:
+```
+cat /sys/kernel/security/lockdown
+```
+How to unlock kernel:
+```
+Alt+SysRq+X
+```
+
 
 https://medium.com/@niklaszantner/check-your-intel-gpu-usage-via-commandline-11196a7ee827
 https://manpages.ubuntu.com/manpages/jammy/man1/intel_gpu_frequency.1.html
