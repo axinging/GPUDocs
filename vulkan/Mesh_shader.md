@@ -101,3 +101,6 @@ void main()
 }
 
 ```
+
+除去Vertex shader类似的部分，Mesh shader最有特色的其实是Culling：
+http://meshshading.vzout.com/mesh_shading.pdf
