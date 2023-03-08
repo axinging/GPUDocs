@@ -1,5 +1,7 @@
 https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac_Arm/979011/
 
+node src/main.js --target performance --benchmark-url https://  --browser "C:\Program Files\Google\Chrome\Application\chrome.exe" --browser-args="--enable-unsafe-webgpu --disable-dawn-features=disallow_unsafe_apis" --performance-backend webgl,webgpu --email abc.com --local-build=''
+
 
 ```
 CURRENT_BRANCH=$(git branch --show-current)
