@@ -1,7 +1,9 @@
-https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac_Arm/979011/
+https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac_Arm/979011/ ,  bad
 
 https://chromium.googlesource.com/chromium/src/+/main/docs/mac_arm64.md
 xattr -rc Chromium.app
+
+https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac_Arm/1000000/
 
 
 node src/main.js --target performance  --browser "/Applications/Chromium.app/Contents/MacOS/Chromium" --browser-args="--enable-unsafe-webgpu --disable-dawn-features=disallow_unsafe_apis" --performance-backend webgl,webgpu  --benchmark-url https://.com/workspace/project/abc/tfjs/ --email def@abc.com --local-build='' —repeat 5
