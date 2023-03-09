@@ -1,5 +1,8 @@
 https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac_Arm/979011/
 
+https://chromium.googlesource.com/chromium/src/+/main/docs/mac_arm64.md
+xattr -rc Chromium.app
+
 node src/main.js --target performance --benchmark-url https://  --browser "C:\Program Files\Google\Chrome\Application\chrome.exe" --browser-args="--enable-unsafe-webgpu --disable-dawn-features=disallow_unsafe_apis" --performance-backend webgl,webgpu --email abc.com --local-build=''
 
 
