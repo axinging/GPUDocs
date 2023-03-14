@@ -1,3 +1,5 @@
+https://storage.googleapis.com/tfjs-models/demos/pose-detection/index.html?model=blazepose&backend=tfjs-webgpu
+
 https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac_Arm/979011/ ,  bad
 
 https://chromium.googlesource.com/chromium/src/+/main/docs/mac_arm64.md
