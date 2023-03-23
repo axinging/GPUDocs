@@ -1,3 +1,6 @@
+node src/main.js --target performance --benchmark-url https://wp.com/workspace/project/2023/tfjs  --local-build webgpu,webgl,core,converter  --browser "C:\Users\abc\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --browser-args="--enable-unsafe-webgpu --disable-dawn-features=disallow_unsafe_apis" --performance-backend webgpu,webgl --email defl.com --warmup-times 50  --run-times 50 --profile-times 50 --repeat 2
+
+
 https://storage.googleapis.com/tfjs-models/demos/pose-detection/index.html?model=blazepose&backend=tfjs-webgpu
 
 https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac_Arm/979011/ ,  bad
