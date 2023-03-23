@@ -1,3 +1,6 @@
+node src/main.js --cleanup-user-data-dir --target performance --benchmark-url https://wp-27.tel.com/workspace/project/io2023/tfjs --browser chrome_stable --performance-backend webgpu,webgl --email aa.com --warmup-times 50  --run-times 50 --profile-times 50 --repeat 2
+
+
 node src/main.js --target performance --benchmark-url="https://wp.com/workspace/project/io2023/tfjs"  --local-build="webgpu,webgl,core,converter"  --browser "C:\Users\abc\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --browser-args="--enable-unsafe-webgpu --disable-dawn-features=disallow_unsafe_apis" --performance-backend webgpu,webgl --email defl.com --warmup-times 50  --run-times 50 --profile-times 50 --repeat 2
 
 
